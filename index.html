@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nishant's Space</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; overflow-x: hidden; }
+
+  /* ---------- Moving background ---------- */
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 24px 12px;
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #ff0080, #7928ca, #00c6ff);
+    background-size: 400% 400%;
+    animation: bgMove 16s ease infinite;
+  }
+  @keyframes bgMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ---------- Glowing stars ---------- */
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    animation: twinkle var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .25; transform: scale(.7); }
+    50%      { opacity: 1;   transform: scale(1.3); }
+  }
+  .shooting {
+    position: absolute;
+    width: 120px; height: 2px;
+    background: linear-gradient(90deg, #fff, transparent);
+    box-shadow: 0 0 10px #fff;
+    opacity: 0;
+    transform: rotate(-35deg);
+    animation: shoot 6s linear infinite;
+  }
+  @keyframes shoot {
+    0%   { opacity: 0; transform: translate(0, 0) rotate(-35deg); }
+    5%   { opacity: 1; }
+    20%  { opacity: 0; transform: translate(-500px, 350px) rotate(-35deg); }
+    100% { opacity: 0; }
+  }
+
+  /* ---------- Welcome text ---------- */
+  h1 {
+    position: relative; z-index: 1;
+    font-family: 'Pacifico', cursive;
+    font-weight: 400;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 8px #fff, 0 0 20px #ff4ecd, 0 0 40px #00e5ff, 0 0 70px #7928ca;
+    animation: glowPulse 3s ease-in-out infinite alternate;
+  }
+  @keyframes glowPulse {
+    from { text-shadow: 0 0 6px #fff, 0 0 16px #ff4ecd, 0 0 30px #00e5ff; }
+    to   { text-shadow: 0 0 10px #fff, 0 0 28px #ff4ecd, 0 0 55px #00e5ff, 0 0 90px #7928ca; }
+  }
+
+  /* ---------- Calculator ---------- */
+  .calc {
+    position: relative; z-index: 1;
+    width: 320px; max-width: 100%;
+    padding: 20px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, .10);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, .3);
+    box-shadow: 0 0 30px rgba(255, 78, 205, .5), 0 0 60px rgba(0, 229, 255, .3);
+  }
+  .screen {
+    background: rgba(0, 0, 0, .45);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    text-align: right;
+    min-height: 92px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    box-shadow: inset 0 0 12px rgba(0, 229, 255, .35);
+  }
+  .history { color: #9fe8ff; font-size: .85rem; min-height: 1.2em; word-break: break-all; }
+  .display { color: #fff; font-size: 2rem; font-weight: 700; word-break: break-all; text-shadow: 0 0 10px #00e5ff; }
+
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  button {
+    border: none; cursor: pointer;
+    font-family: inherit; font-size: 1.15rem; font-weight: 700;
+    color: #fff;
+    padding: 16px 0;
+    border-radius: 14px;
+    transition: transform .1s, box-shadow .2s, filter .2s;
+  }
+  button:hover  { filter: brightness(1.2); transform: translateY(-2px); }
+  button:active { transform: scale(.93); }
+
+  .num  { background: linear-gradient(135deg, #6a11cb, #2575fc); box-shadow: 0 0 10px #2575fc88; }
+  .op   { background: linear-gradient(135deg, #f7971e, #ffd200); color: #3a2400; box-shadow: 0 0 10px #ffd20099; }
+  .fn   { background: linear-gradient(135deg, #ff416c, #ff4b2b); box-shadow: 0 0 10px #ff416c99; }
+  .eq   { background: linear-gradient(135deg, #11998e, #38ef7d); color: #04332b; box-shadow: 0 0 14px #38ef7daa; }
+  .wide { grid-column: span 2; }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<h1>welcome to nishant's space</h1>
+
+<div class="calc">
+  <div class="screen">
+    <div class="history" id="history"></div>
+    <div class="display" id="display">0</div>
+  </div>
+
+  <div class="keys">
+    <button class="fn"  data-act="clear">AC</button>
+    <button class="fn"  data-act="back">⌫</button>
+    <button class="op"  data-act="op" data-v="%">%</button>
+    <button class="op"  data-act="op" data-v="/">÷</button>
+
+    <button class="num" data-act="num" data-v="7">7</button>
+    <button class="num" data-act="num" data-v="8">8</button>
+    <button class="num" data-act="num" data-v="9">9</button>
+    <button class="op"  data-act="op" data-v="*">×</button>
+
+    <button class="num" data-act="num" data-v="4">4</button>
+    <button class="num" data-act="num" data-v="5">5</button>
+    <button class="num" data-act="num" data-v="6">6</button>
+    <button class="op"  data-act="op" data-v="-">−</button>
+
+    <button class="num" data-act="num" data-v="1">1</button>
+    <button class="num" data-act="num" data-v="2">2</button>
+    <button class="num" data-act="num" data-v="3">3</button>
+    <button class="op"  data-act="op" data-v="+">+</button>
+
+    <button class="num wide" data-act="num" data-v="0">0</button>
+    <button class="num" data-act="num" data-v=".">.</button>
+    <button class="eq"  data-act="eq">=</button>
+  </div>
+</div>
+
+<script>
+  /* ---------- Stars ---------- */
+  const sky = document.getElementById('stars');
+  const colors = ['#ffffff', '#ffe9a8', '#a8e6ff', '#ffb3f0'];
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    s.style.cssText =
+      `left:${Math.random() * 100}%; top:${Math.random() * 100}%;` +
+      `width:${size}px; height:${size}px; background:${color};` +
+      `box-shadow:0 0 ${size * 3}px ${size}px ${color};` +
+      `--d:${2 + Math.random() * 4}s; --delay:${Math.random() * 5}s;`;
+    sky.appendChild(s);
+  }
+  for (let i = 0; i < 3; i++) {
+    const m = document.createElement('div');
+    m.className = 'shooting';
+    m.style.cssText = `left:${50 + Math.random() * 50}%; top:${Math.random() * 40}%; animation-delay:${i * 2.3}s;`;
+    sky.appendChild(m);
+  }
+
+  /* ---------- Calculator logic ---------- */
+  const displayEl = document.getElementById('display');
+  const historyEl = document.getElementById('history');
+  const symbols = { '*': '×', '/': '÷', '-': '−', '+': '+', '%': '%' };
+
+  let current = '0';     // number being typed
+  let stored = null;     // first operand
+  let operator = null;   // pending operator
+  let justEvaluated = false;
+
+  function compute(a, op, b) {
+    a = parseFloat(a); b = parseFloat(b);
+    switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/': return b === 0 ? 'Error' : a / b;
+      case '%': return a % b;
+    }
+  }
+  function tidy(n) {
+    if (n === 'Error') return n;
+    return String(parseFloat(n.toPrecision(12)));
+  }
+  function render() {
+    displayEl.textContent = current;
+    historyEl.textContent = stored !== null ? `${stored} ${symbols[operator] || ''}` : '';
+  }
+
+  function inputNum(v) {
+    if (current === 'Error') current = '0';
+    if (justEvaluated) { current = '0'; justEvaluated = false; }
+    if (v === '.' && current.includes('.')) return;
+    current = (current === '0' && v !== '.') ? v : current + v;
+  }
+  function inputOp(v) {
+    if (current === 'Error') return;
+    if (operator && !justEvaluated && stored !== null) {
+      const r = compute(stored, operator, current);
+      current = typeof r === 'string' ? r : tidy(r);
+      if (current === 'Error') { stored = null; operator = null; return; }
+    }
+    stored = current;
+    operator = v;
+    justEvaluated = true;   // next digit starts a fresh number
+  }
+  function equals() {
+    if (operator === null || stored === null) return;
+    const expr = `${stored} ${symbols[operator]} ${current} =`;
+    const r = compute(stored, operator, current);
+    current = typeof r === 'string' ? r : tidy(r);
+    stored = null; operator = null; justEvaluated = true;
+    render();
+    historyEl.textContent = expr;
+  }
+  function clearAll() { current = '0'; stored = null; operator = null; justEvaluated = false; }
+  function back() {
+    if (justEvaluated || current === 'Error') { current = '0'; return; }
+    current = current.length > 1 ? current.slice(0, -1) : '0';
+  }
+
+  document.querySelector('.keys').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const act = b.dataset.act, v = b.dataset.v;
+    if (act === 'num') inputNum(v);
+    else if (act === 'op') inputOp(v);
+    else if (act === 'eq') { equals(); return; }
+    else if (act === 'clear') clearAll();
+    else if (act === 'back') back();
+    render();
+  });
+
+  /* Keyboard support */
+  document.addEventListener('keydown', e => {
+    if (/[0-9.]/.test(e.key)) inputNum(e.key);
+    else if ('+-*/%'.includes(e.key)) inputOp(e.key);
+    else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); equals(); return; }
+    else if (e.key === 'Backspace') back();
+    else if (e.key === 'Escape') clearAll();
+    else return;
+    render();
+  });
+</script>
+</body>
+</html>
